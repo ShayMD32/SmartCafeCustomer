@@ -7,12 +7,14 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.google.firebase.auth.FirebaseAuth
 
 class RegisterActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_register)
+        val auth = FirebaseAuth.getInstance()
 
         val fullNameInput = findViewById<EditText>(R.id.editTextFullName)
         val emailInput = findViewById<EditText>(R.id.editTextRegisterEmail)
@@ -50,12 +52,32 @@ class RegisterActivity : AppCompatActivity() {
                     confirmPasswordInput.error = "Passwords do not match"
                 }
 
+
                 else -> {
-                    Toast.makeText(
-                        this,
-                        "Details valid. Account creation not connected yet.",
-                        Toast.LENGTH_LONG
-                    ).show()
+                    registerButton.isEnabled = false
+
+                    auth.createUserWithEmailAndPassword(email, password)
+                        .addOnCompleteListener(this) { task ->
+
+                            registerButton.isEnabled = true
+
+                            if (task.isSuccessful) {
+                                Toast.makeText(
+                                    this,
+                                    "Account created successfully!",
+                                    Toast.LENGTH_LONG
+                                ).show()
+
+                                finish()
+                            } else {
+                                Toast.makeText(
+                                    this,
+                                    task.exception?.localizedMessage
+                                        ?: "Registration failed. Please try again.",
+                                    Toast.LENGTH_LONG
+                                ).show()
+                            }
+                        }
                 }
             }
         }
@@ -63,5 +85,6 @@ class RegisterActivity : AppCompatActivity() {
         backButton.setOnClickListener {
             finish()
         }
+
     }
 }
