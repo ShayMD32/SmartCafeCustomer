@@ -72,13 +72,18 @@ class MainActivity : AppCompatActivity() {
                             }
 
 
+
                             else {
+                                val errorMessage = task.exception?.localizedMessage
+                                    ?: "Unknown login error"
+
                                 Toast.makeText(
                                     this,
-                                    "Login failed. Check your email and password.",
+                                    errorMessage,
                                     Toast.LENGTH_LONG
                                 ).show()
                             }
+
                         }
                 }
             }

@@ -39,13 +39,12 @@ class DashboardActivity : AppCompatActivity() {
             finish()
         }
 
+
         browseMenuButton.setOnClickListener {
-            Toast.makeText(
-                this,
-                "Menu feature coming next",
-                Toast.LENGTH_SHORT
-            ).show()
+            val intent = Intent(this, MenuActivity::class.java)
+            startActivity(intent)
         }
+
 
         orderHistoryButton.setOnClickListener {
             Toast.makeText(
