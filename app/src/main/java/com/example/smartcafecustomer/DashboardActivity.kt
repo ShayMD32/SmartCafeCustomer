@@ -47,11 +47,9 @@ class DashboardActivity : AppCompatActivity() {
 
 
         orderHistoryButton.setOnClickListener {
-            Toast.makeText(
-                this,
-                "Order history coming soon",
-                Toast.LENGTH_SHORT
-            ).show()
+            val intent = Intent(this, OrderHistoryActivity::class.java)
+            startActivity(intent)
         }
+
     }
 }
