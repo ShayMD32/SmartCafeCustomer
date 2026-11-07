@@ -13,6 +13,16 @@ class DashboardActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_dashboard)
 
+
+        val feedbackButton =
+            findViewById<Button>(R.id.buttonFeedback)
+
+        feedbackButton.setOnClickListener {
+            val intent = Intent(this, FeedbackActivity::class.java)
+            startActivity(intent)
+        }
+
+
         val auth = FirebaseAuth.getInstance()
 
         if (auth.currentUser == null) {

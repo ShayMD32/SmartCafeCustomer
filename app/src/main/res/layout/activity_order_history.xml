@@ -37,10 +37,19 @@
     </ScrollView>
 
     <Button
+        android:id="@+id/buttonBackToMenu"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="48dp"
+        android:text="Back to Menu" />
+
+    <Button
         android:id="@+id/buttonBackToDashboard"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:minHeight="48dp"
-        android:text="Back to Dashboard" />
+        android:layout_marginTop="8dp"
+        android:text="Back to Home" />
+
 
 </LinearLayout>

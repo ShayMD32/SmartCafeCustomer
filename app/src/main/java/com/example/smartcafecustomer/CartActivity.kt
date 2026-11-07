@@ -10,12 +10,28 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import java.util.Locale
+import android.content.Intent
 
 class CartActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_cart)
+
+
+        val backToHomeButton =
+            findViewById<Button>(R.id.buttonBackToHome)
+
+        backToHomeButton.setOnClickListener {
+            val intent = Intent(this, DashboardActivity::class.java)
+            intent.addFlags(
+                Intent.FLAG_ACTIVITY_CLEAR_TOP or
+                        Intent.FLAG_ACTIVITY_SINGLE_TOP
+            )
+            startActivity(intent)
+            finish()
+        }
+
 
         val auth = FirebaseAuth.getInstance()
         val db = FirebaseFirestore.getInstance()

@@ -4,15 +4,17 @@ import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.view.Gravity
+import android.view.View
+import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.EditText
+import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.Spinner
 import android.widget.TextView
 import android.widget.Toast
-import android.widget.AdapterView
-import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import java.util.Locale
 
@@ -40,6 +42,26 @@ class MenuActivity : AppCompatActivity() {
         val basketButton =
             findViewById<Button>(R.id.buttonViewBasket)
 
+        val backToHomeButton =
+            findViewById<Button>(R.id.buttonBackToHome)
+
+        // Return to the customer dashboard
+        backToHomeButton.setOnClickListener {
+            val intent = Intent(
+                this,
+                DashboardActivity::class.java
+            )
+
+            intent.addFlags(
+                Intent.FLAG_ACTIVITY_CLEAR_TOP or
+                        Intent.FLAG_ACTIVITY_SINGLE_TOP
+            )
+
+            startActivity(intent)
+            finish()
+        }
+
+        // Set up category dropdown
         val adapter = ArrayAdapter(
             this,
             android.R.layout.simple_spinner_item,
@@ -52,7 +74,7 @@ class MenuActivity : AppCompatActivity() {
 
         categorySpinner.adapter = adapter
 
-        // Update menu when the customer types
+        // Update menu when the customer searches
         searchInput.addTextChangedListener(
             object : TextWatcher {
 
@@ -96,6 +118,7 @@ class MenuActivity : AppCompatActivity() {
                 ) {}
             }
 
+        // Open the customer's basket
         basketButton.setOnClickListener {
             startActivity(
                 Intent(this, CartActivity::class.java)
@@ -105,6 +128,26 @@ class MenuActivity : AppCompatActivity() {
         displayMenu()
     }
 
+    // Match each café product to its photograph
+    private fun getProductImage(productName: String): Int {
+        return when (productName) {
+            "Cappuccino" -> R.drawable.cappuccino
+            "Flat White" -> R.drawable.flat_white
+            "Hot Chocolate" -> R.drawable.hot_chocolate
+            "Iced Latte" -> R.drawable.iced_latte
+            "Iced Matcha" -> R.drawable.iced_matcha
+            "Chicken Panini" -> R.drawable.chicken_panini
+            "Cheese Toastie" -> R.drawable.cheese_toastie
+            "Blueberry Muffin" -> R.drawable.blueberry_muffin
+            else -> android.R.drawable.ic_menu_gallery
+        }
+    }
+
+    // Convert dp to pixels for consistent image sizes
+    private val Int.dp: Int
+        get() = (this * resources.displayMetrics.density).toInt()
+
+    // Convert prices from pence to pounds
     private fun formatPrice(pence: Int): String {
         return String.format(
             Locale.UK,
@@ -113,6 +156,7 @@ class MenuActivity : AppCompatActivity() {
         )
     }
 
+    // Display products based on search and category
     private fun displayMenu() {
 
         menuContainer.removeAllViews()
@@ -147,18 +191,48 @@ class MenuActivity : AppCompatActivity() {
 
         for (item in filteredItems) {
 
-            val productText = TextView(this)
+            // Row containing product image and information
+            val productRow = LinearLayout(this).apply {
+                orientation = LinearLayout.HORIZONTAL
+                gravity = Gravity.CENTER_VERTICAL
+                setPadding(0, 16.dp, 0, 8.dp)
+            }
 
-            productText.text =
-                "${item.name} — ${formatPrice(item.pricePence)}"
+            // Display product image
+            val productImage = ImageView(this).apply {
+                setImageResource(getProductImage(item.name))
+                scaleType = ImageView.ScaleType.CENTER_CROP
+                contentDescription = item.name
 
-            productText.textSize = 18f
-            productText.setPadding(0, 20, 0, 8)
+                layoutParams = LinearLayout.LayoutParams(
+                    100.dp,
+                    100.dp
+                ).apply {
+                    marginEnd = 16.dp
+                }
+            }
 
-            menuContainer.addView(productText)
+            productRow.addView(productImage)
 
-            val addButton = Button(this)
-            addButton.text = "Add ${item.name}"
+            // Display product name and price
+            val productText = TextView(this).apply {
+                text = "${item.name}\n${formatPrice(item.pricePence)}"
+                textSize = 18f
+
+                layoutParams = LinearLayout.LayoutParams(
+                    0,
+                    LinearLayout.LayoutParams.WRAP_CONTENT,
+                    1f
+                )
+            }
+
+            productRow.addView(productText)
+            menuContainer.addView(productRow)
+
+            // Add product to basket
+            val addButton = Button(this).apply {
+                text = "Add ${item.name}"
+            }
 
             addButton.setOnClickListener {
 

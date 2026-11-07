@@ -52,4 +52,13 @@
         android:minHeight="48dp"
         android:text="Back to Menu" />
 
+    <Button
+        android:id="@+id/buttonBackToHome"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="48dp"
+        android:layout_marginTop="8dp"
+        android:text="Back to Home" />
+
+
 </LinearLayout>

@@ -11,6 +11,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
 import java.text.SimpleDateFormat
 import java.util.Locale
+import android.content.Intent
 
 class OrderHistoryActivity : AppCompatActivity() {
 
@@ -25,6 +26,22 @@ class OrderHistoryActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_order_history)
+
+        val backToMenuButton =
+            findViewById<Button>(R.id.buttonBackToMenu)
+
+        backToMenuButton.setOnClickListener {
+            val intent = Intent(this, MenuActivity::class.java)
+
+            intent.addFlags(
+                Intent.FLAG_ACTIVITY_CLEAR_TOP or
+                        Intent.FLAG_ACTIVITY_SINGLE_TOP
+            )
+
+            startActivity(intent)
+            finish()
+        }
+
 
         ordersContainer = findViewById(R.id.ordersContainer)
         statusText = findViewById(R.id.textOrderStatus)
