@@ -1,66 +1,146 @@
 <?xml version="1.0" encoding="utf-8"?>
-
 <ScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#F8F5F0"
     android:fillViewport="true">
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:gravity="center"
         android:padding="24dp">
+
+        <!-- Brand header -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="SMART CAFÉ"
+            android:textColor="#35241C"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:letterSpacing="0.18"
+            android:layout_marginTop="20dp"/>
 
         <TextView
             android:id="@+id/textViewWelcome"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Welcome to Smart Café!"
-            android:textSize="28sp"
+            android:text="Your daily coffee ritual."
+            android:textColor="#35241C"
+            android:textSize="32sp"
             android:textStyle="bold"
-            android:gravity="center"
-            android:layout_marginBottom="12dp" />
+            android:layout_marginTop="20dp"/>
 
         <TextView
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="What would you like to do today?"
+            android:text="Freshly brewed favourites, made for you."
+            android:textColor="#75665E"
             android:textSize="16sp"
-            android:gravity="center"
-            android:layout_marginBottom="32dp" />
-        
-        <Button
-            android:id="@+id/buttonFeedback"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:minHeight="48dp"
-            android:text="Customer Feedback" />
+            android:layout_marginTop="10dp"/>
 
-        <Button
-            android:id="@+id/buttonBrowseMenu"
+        <!-- Featured panel -->
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:minHeight="48dp"
-            android:text="Browse Menu" />
+            android:layout_marginTop="32dp"
+            android:background="#35241C"
+            android:orientation="vertical"
+            android:padding="24dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="YOUR NEXT FAVOURITE"
+                android:textColor="#D8B99B"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:letterSpacing="0.12"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:text="Something good is brewing."
+                android:textColor="#FFFFFF"
+                android:textSize="25sp"
+                android:textStyle="bold"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="Explore handcrafted drinks and delicious café favourites."
+                android:textColor="#E8DED5"
+                android:textSize="14sp"/>
+
+            <Button
+                android:id="@+id/buttonBrowseMenu"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:minHeight="52dp"
+                android:text="EXPLORE MENU"
+                android:textAllCaps="false"
+                android:textColor="#35241C"
+                android:backgroundTint="#F5E8D8"/>
+        </LinearLayout>
+
+        <!-- Navigation -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="32dp"
+            android:layout_marginBottom="12dp"
+            android:text="Your café"
+            android:textColor="#35241C"
+            android:textSize="22sp"
+            android:textStyle="bold"/>
 
         <Button
             android:id="@+id/buttonOrderHistory"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:minHeight="48dp"
+            android:minHeight="56dp"
+            android:text="View Order History"
+            android:textAllCaps="false"
+            android:textColor="#35241C"
+            android:backgroundTint="#E9DED3"/>
+
+        <Button
+            android:id="@+id/buttonFeedback"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
-            android:text="Order History" />
+            android:minHeight="56dp"
+            android:text="Leave Feedback"
+            android:textAllCaps="false"
+            android:textColor="#35241C"
+            android:backgroundTint="#E9DED3"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="36dp"
+            android:text="ACCOUNT"
+            android:textColor="#8B796D"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            android:letterSpacing="0.12"/>
 
         <Button
             android:id="@+id/buttonLogout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
             android:minHeight="48dp"
-            android:layout_marginTop="24dp"
-            android:text="Logout" />
+            android:text="Sign out"
+            android:textAllCaps="false"
+            android:textColor="#6B4535"
+            android:backgroundTint="#EFE8E0"/>
 
     </LinearLayout>
 </ScrollView>

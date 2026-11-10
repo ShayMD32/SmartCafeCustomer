@@ -1,7 +1,10 @@
 package com.example.smartcafecustomer
 
+import android.content.Intent
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.widget.Button
+import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
@@ -10,238 +13,323 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import java.util.Locale
-import android.content.Intent
 
 class CartActivity : AppCompatActivity() {
+
+    private lateinit var cartContainer: LinearLayout
+    private lateinit var itemCountText: TextView
+    private lateinit var totalText: TextView
+    private lateinit var subtitleText: TextView
+    private lateinit var placeOrderButton: Button
+
+    private val auth = FirebaseAuth.getInstance()
+    private val database = FirebaseFirestore.getInstance()
+
+    private var orderInProgress = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_cart)
 
 
-        val backToHomeButton =
-            findViewById<Button>(R.id.buttonBackToHome)
-
-        backToHomeButton.setOnClickListener {
-            val intent = Intent(this, DashboardActivity::class.java)
-            intent.addFlags(
-                Intent.FLAG_ACTIVITY_CLEAR_TOP or
-                        Intent.FLAG_ACTIVITY_SINGLE_TOP
-            )
-            startActivity(intent)
-            finish()
-        }
+        cartContainer = findViewById(R.id.cartContainer)
+        itemCountText = findViewById(R.id.itemCountText)
+        totalText = findViewById(R.id.totalText)
+        subtitleText = findViewById(R.id.subtitleText)
+        placeOrderButton = findViewById(R.id.buttonPlaceOrder)
 
 
-        val auth = FirebaseAuth.getInstance()
-        val db = FirebaseFirestore.getInstance()
-
-        val cartContainer =
-            findViewById<LinearLayout>(R.id.cartContainer)
-
-        val totalText =
-            findViewById<TextView>(R.id.textCartTotal)
-
-        val placeOrderButton =
-            findViewById<Button>(R.id.buttonPlaceOrder)
-
-        val backButton =
-            findViewById<Button>(R.id.buttonBackToMenu)
-
-        var isSubmitting = false
-
-        fun formatPrice(pence: Int): String {
-            return String.format(
-                Locale.UK,
-                "£%.2f",
-                pence / 100.0
-            )
-        }
-
-        fun refreshCart() {
-
-            cartContainer.removeAllViews()
-
-            val selectedItems = ShoppingCart.getItems()
-
-            if (selectedItems.isEmpty()) {
-                val emptyText = TextView(this)
-                emptyText.text = "Your basket is empty."
-                emptyText.textSize = 18f
-                cartContainer.addView(emptyText)
+        // Return to the menu
+        findViewById<Button>(R.id.buttonContinueShopping)
+            .setOnClickListener {
+                finish()
             }
 
-            for ((item, quantity) in selectedItems) {
-
-                val productText = TextView(this)
-                val subtotalPence = item.pricePence * quantity
-
-                productText.text =
-                    "${item.name} x $quantity — ${formatPrice(subtotalPence)}"
-
-                productText.textSize = 18f
-                productText.setPadding(12, 24, 12, 12)
-                cartContainer.addView(productText)
-
-                val buttonRow = LinearLayout(this)
-                buttonRow.orientation = LinearLayout.HORIZONTAL
-
-                val minusButton = Button(this)
-                minusButton.text = "−"
-                minusButton.contentDescription =
-                    "Decrease quantity of ${item.name}"
-
-                minusButton.isEnabled = !isSubmitting
-                minusButton.setOnClickListener {
-                    ShoppingCart.removeItem(item)
-                    refreshCart()
-                }
-
-                val plusButton = Button(this)
-                plusButton.text = "+"
-                plusButton.contentDescription =
-                    "Increase quantity of ${item.name}"
-
-                plusButton.isEnabled = !isSubmitting
-                plusButton.setOnClickListener {
-                    ShoppingCart.addItem(item)
-                    refreshCart()
-                }
-
-                val removeButton = Button(this)
-                removeButton.text = "Remove"
-                removeButton.isEnabled = !isSubmitting
-
-                removeButton.setOnClickListener {
-                    ShoppingCart.removeAllOfItem(item)
-                    refreshCart()
-                }
-
-                buttonRow.addView(
-                    minusButton,
-                    LinearLayout.LayoutParams(
-                        0,
-                        LinearLayout.LayoutParams.WRAP_CONTENT,
-                        1f
-                    )
+        // Return to the dashboard
+        findViewById<Button>(R.id.buttonBackToHome)
+            .setOnClickListener {
+                val intent = Intent(
+                    this,
+                    DashboardActivity::class.java
                 )
 
-                buttonRow.addView(
-                    plusButton,
-                    LinearLayout.LayoutParams(
-                        0,
-                        LinearLayout.LayoutParams.WRAP_CONTENT,
-                        1f
-                    )
+                intent.addFlags(
+                    Intent.FLAG_ACTIVITY_CLEAR_TOP or
+                            Intent.FLAG_ACTIVITY_SINGLE_TOP
                 )
 
-                buttonRow.addView(
-                    removeButton,
-                    LinearLayout.LayoutParams(
-                        0,
-                        LinearLayout.LayoutParams.WRAP_CONTENT,
-                        2f
-                    )
-                )
-
-                cartContainer.addView(buttonRow)
+                startActivity(intent)
+                finish()
             }
 
-            val totalPence = ShoppingCart.getTotalPence()
-
-            totalText.text = "Total: ${formatPrice(totalPence)}"
-
-            // Enable ordering only when the basket contains products
-            placeOrderButton.isEnabled =
-                selectedItems.isNotEmpty() && !isSubmitting
+        // Submit the order
+        placeOrderButton.setOnClickListener {
+            placeOrder()
         }
 
         refreshCart()
+    }
 
-        placeOrderButton.setOnClickListener {
+    override fun onResume() {
+        super.onResume()
 
-            val user = auth.currentUser
-            val selectedItems = ShoppingCart.getItems()
+        if (::cartContainer.isInitialized) {
+            refreshCart()
+        }
+    }
 
-            if (isSubmitting) {
-                return@setOnClickListener
+    // Display currency in pounds
+    private fun formatPrice(pence: Int): String {
+        return String.format(
+            Locale.UK,
+            "£%.2f",
+            pence / 100.0
+        )
+    }
+
+    // Match products with their photographs
+    private fun getProductImage(productName: String): Int {
+        return when (productName) {
+            "Cappuccino" -> R.drawable.cappuccino
+            "Flat White" -> R.drawable.flat_white
+            "Hot Chocolate" -> R.drawable.hot_chocolate
+            "Iced Latte" -> R.drawable.iced_latte
+            "Iced Matcha" -> R.drawable.iced_matcha
+            "Chicken Panini" -> R.drawable.chicken_panini
+            "Cheese Toastie" -> R.drawable.cheese_toastie
+            "Blueberry Muffin" -> R.drawable.blueberry_muffin
+            else -> android.R.drawable.ic_menu_gallery
+        }
+    }
+
+    // Refresh all basket information
+    private fun refreshCart() {
+
+        cartContainer.removeAllViews()
+
+        val selectedItems = ShoppingCart.getItems()
+
+        val count = selectedItems.sumOf { (_, quantity) ->
+            quantity
+        }
+
+        val totalPence = ShoppingCart.getTotalPence()
+
+        itemCountText.text =
+            if (count == 1) {
+                "1 item"
+            } else {
+                "$count items"
             }
 
-            if (user == null) {
-                Toast.makeText(
-                    this,
-                    "Please log in to place an order",
-                    Toast.LENGTH_SHORT
-                ).show()
-                return@setOnClickListener
-            }
+        totalText.text = "Total: ${formatPrice(totalPence)}"
 
+        subtitleText.text =
             if (selectedItems.isEmpty()) {
-                Toast.makeText(
-                    this,
-                    "Your basket is empty",
-                    Toast.LENGTH_SHORT
-                ).show()
-                return@setOnClickListener
+                "Your next favourite is waiting."
+            } else {
+                "Review your favourites before ordering."
             }
 
-            val orderItems = selectedItems.map { (item, quantity) ->
-                mapOf(
-                    "productId" to item.id,
-                    "name" to item.name,
-                    "quantity" to quantity,
-                    "pricePence" to item.pricePence
+        placeOrderButton.isEnabled =
+            selectedItems.isNotEmpty() && !orderInProgress
+
+        // Display empty basket message
+        if (selectedItems.isEmpty()) {
+
+            val emptyText = TextView(this).apply {
+                text = "Your basket is empty.\nExplore the menu to add something delicious."
+                textSize = 16f
+                setTextColor(
+                    android.graphics.Color.parseColor("#75665E")
                 )
+
+                val padding = (
+                        20 * resources.displayMetrics.density
+                        ).toInt()
+
+                setPadding(padding, padding, padding, padding)
             }
 
-            val order = hashMapOf(
-                "userId" to user.uid,
-                "items" to orderItems,
-                "totalPence" to ShoppingCart.getTotalPence(),
-                "status" to "Pending",
-                "createdAt" to FieldValue.serverTimestamp()
+            cartContainer.addView(emptyText)
+            return
+        }
+
+        // Display each selected product
+        for ((item, quantity) in selectedItems) {
+
+            val productCard = LayoutInflater.from(this)
+                .inflate(
+                    R.layout.item_cart_product,
+                    cartContainer,
+                    false
+                )
+
+            val productImage =
+                productCard.findViewById<ImageView>(
+                    R.id.imageCartProduct
+                )
+
+            val nameText =
+                productCard.findViewById<TextView>(
+                    R.id.textCartProductName
+                )
+
+            val unitPriceText =
+                productCard.findViewById<TextView>(
+                    R.id.textCartUnitPrice
+                )
+
+            val subtotalText =
+                productCard.findViewById<TextView>(
+                    R.id.textCartProductSubtotal
+                )
+
+            val quantityText =
+                productCard.findViewById<TextView>(
+                    R.id.textCartQuantity
+                )
+
+            val minusButton =
+                productCard.findViewById<Button>(
+                    R.id.buttonCartMinus
+                )
+
+            val plusButton =
+                productCard.findViewById<Button>(
+                    R.id.buttonCartPlus
+                )
+
+            val removeButton =
+                productCard.findViewById<Button>(
+                    R.id.buttonCartRemove
+                )
+
+            // Product information
+            productImage.setImageResource(
+                getProductImage(item.name)
             )
 
-            isSubmitting = true
-            backButton.isEnabled = false
-            refreshCart()
+            productImage.contentDescription = item.name
 
-            db.collection("users")
-                .document(user.uid)
-                .collection("orders")
-                .add(order)
-                .addOnSuccessListener {
+            nameText.text = item.name
 
-                    ShoppingCart.clearCart()
+            unitPriceText.text =
+                "${formatPrice(item.pricePence)} each"
 
-                    isSubmitting = false
-                    backButton.isEnabled = true
-                    refreshCart()
+            subtotalText.text =
+                formatPrice(item.pricePence * quantity)
 
-                    Toast.makeText(
-                        this,
-                        "Order placed successfully!",
-                        Toast.LENGTH_LONG
-                    ).show()
-                }
-                .addOnFailureListener { exception ->
+            quantityText.text = quantity.toString()
 
-                    isSubmitting = false
-                    backButton.isEnabled = true
-                    refreshCart()
-
-                    Toast.makeText(
-                        this,
-                        "Order failed: ${exception.localizedMessage}",
-                        Toast.LENGTH_LONG
-                    ).show()
-                }
-        }
-
-        backButton.setOnClickListener {
-            if (!isSubmitting) {
-                finish()
+            // Increase quantity
+            plusButton.setOnClickListener {
+                ShoppingCart.addItem(item)
+                refreshCart()
             }
+
+            // Decrease quantity
+            minusButton.setOnClickListener {
+                ShoppingCart.removeItem(item)
+                refreshCart()
+            }
+
+            // Remove all quantities of this product
+            removeButton.setOnClickListener {
+                ShoppingCart.removeAllOfItem(item)
+                refreshCart()
+            }
+
+            cartContainer.addView(productCard)
         }
+    }
+
+    // Save customer's order to Firebase
+    private fun placeOrder() {
+
+        if (orderInProgress) return
+
+        val user = auth.currentUser
+
+        if (user == null) {
+            Toast.makeText(
+                this,
+                "Please log in before placing an order.",
+                Toast.LENGTH_SHORT
+            ).show()
+            return
+        }
+
+        val selectedItems = ShoppingCart.getItems()
+
+        if (selectedItems.isEmpty()) {
+            Toast.makeText(
+                this,
+                "Your basket is empty.",
+                Toast.LENGTH_SHORT
+            ).show()
+            return
+        }
+
+        val totalPence = ShoppingCart.getTotalPence()
+
+        // Store product details and quantities
+        val orderItems = selectedItems.map { (item, quantity) ->
+            hashMapOf(
+                "productId" to item.id,
+                "name" to item.name,
+                "pricePence" to item.pricePence,
+                "quantity" to quantity
+            )
+        }
+
+        // Create order record
+        val order = hashMapOf(
+            "userId" to user.uid,
+            "items" to orderItems,
+            "totalPence" to totalPence,
+            "status" to "Placed",
+            "createdAt" to FieldValue.serverTimestamp()
+        )
+
+        orderInProgress = true
+        placeOrderButton.isEnabled = false
+        placeOrderButton.text = "Placing order..."
+
+        // Save to the authenticated customer's orders
+        database.collection("users")
+            .document(user.uid)
+            .collection("orders")
+            .add(order)
+            .addOnSuccessListener {
+
+                orderInProgress = false
+
+                ShoppingCart.clearCart()
+
+                placeOrderButton.text = "Place Order"
+
+                Toast.makeText(
+                    this,
+                    "Order placed successfully!",
+                    Toast.LENGTH_LONG
+                ).show()
+
+                refreshCart()
+            }
+            .addOnFailureListener { error ->
+
+                orderInProgress = false
+
+                placeOrderButton.text = "Place Order"
+
+                refreshCart()
+
+                Toast.makeText(
+                    this,
+                    "Order failed: ${error.localizedMessage}",
+                    Toast.LENGTH_LONG
+                ).show()
+            }
     }
 }

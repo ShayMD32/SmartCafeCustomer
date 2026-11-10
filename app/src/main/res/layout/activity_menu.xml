@@ -4,58 +4,140 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#F8F5F0"
     android:fillViewport="true">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="24dp">
+        android:padding="20dp">
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Smart Café Menu"
-            android:textSize="28sp"
+            android:layout_marginTop="12dp"
+            android:text="SMART CAFÉ"
+            android:textColor="#A57550"
+            android:textSize="13sp"
             android:textStyle="bold"
-            android:layout_marginBottom="16dp" />
+            android:letterSpacing="0.15"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:text="Explore our menu"
+            android:textColor="#35241C"
+            android:textSize="30sp"
+            android:textStyle="bold"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:text="A little something for every craving."
+            android:textColor="#75665E"
+            android:textSize="15sp"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="28dp"
+            android:text="FIND YOUR FAVOURITE"
+            android:textColor="#75665E"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            android:letterSpacing="0.08"/>
 
         <EditText
             android:id="@+id/editSearchMenu"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Search products..."
+            android:layout_height="54dp"
+            android:layout_marginTop="10dp"
+            android:background="@drawable/bg_menu_card"
+            android:drawableStart="@android:drawable/ic_menu_search"
+            android:drawablePadding="10dp"
+            android:hint="Search drinks and food..."
             android:inputType="text"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
             android:singleLine="true"
-            android:layout_marginBottom="12dp" />
+            android:textColor="#35241C"
+            android:textColorHint="#8A7E76"
+            android:textSize="15sp"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="22dp"
+            android:text="CATEGORIES"
+            android:textColor="#75665E"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            android:letterSpacing="0.08"/>
 
         <Spinner
             android:id="@+id/spinnerCategory"
             android:layout_width="match_parent"
-            android:layout_height="48dp"
-            android:layout_marginBottom="16dp" />
+            android:layout_height="52dp"
+            android:layout_marginTop="10dp"
+            android:background="@drawable/bg_menu_card"
+            android:paddingStart="14dp"
+            android:paddingEnd="14dp"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="26dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Made for you"
+                android:textColor="#35241C"
+                android:textSize="22sp"
+                android:textStyle="bold"/>
+
+            <TextView
+                android:id="@+id/textBasketCount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Basket: 0"
+                android:textColor="#A57550"
+                android:textSize="14sp"
+                android:textStyle="bold"/>
+        </LinearLayout>
 
         <LinearLayout
             android:id="@+id/menuContainer"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical" />
+            android:layout_marginTop="14dp"
+            android:orientation="vertical"/>
 
         <Button
             android:id="@+id/buttonViewBasket"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="View Basket"
-            android:layout_marginTop="20dp" />
+            android:layout_height="56dp"
+            android:layout_marginTop="24dp"
+            android:backgroundTint="#35241C"
+            android:text="View My Basket"
+            android:textAllCaps="false"
+            android:textColor="#FFFFFF"
+            android:textSize="16sp"/>
 
         <Button
             android:id="@+id/buttonBackToHome"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:minHeight="48dp"
+            android:layout_height="50dp"
             android:layout_marginTop="8dp"
-            android:text="Back to Home" />
-
-
+            android:backgroundTint="#E9DED3"
+            android:text="Back to Home"
+            android:textAllCaps="false"
+            android:textColor="#35241C"/>
     </LinearLayout>
 </ScrollView>

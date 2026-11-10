@@ -1,74 +1,177 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
+<ScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="24dp"
-    tools:context=".MainActivity">
+    android:background="#F8F5F0"
+    android:fillViewport="true">
 
     <LinearLayout
         android:id="@+id/loginContainer"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
         android:orientation="vertical"
-        android:gravity="center_horizontal"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
+        android:gravity="center"
+        android:padding="24dp">
 
+        <!-- Brand identity -->
         <TextView
             android:id="@+id/textViewTitle"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Smart Café"
-            android:textSize="30sp"
+            android:gravity="center"
+            android:text="SMART CAFÉ"
+            android:textColor="#A57550"
+            android:textSize="15sp"
             android:textStyle="bold"
-            android:layout_marginBottom="8dp" />
+            android:letterSpacing="0.18"/>
 
         <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Customer Login"
-            android:textSize="18sp"
-            android:layout_marginBottom="32dp" />
-
-        <EditText
-            android:id="@+id/editTextEmail"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:minHeight="48dp"
-            android:hint="Email address"
-            android:inputType="textEmailAddress"
-            android:singleLine="true" />
+            android:layout_marginTop="20dp"
+            android:gravity="center"
+            android:text="Welcome back."
+            android:textColor="#35241C"
+            android:textSize="34sp"
+            android:textStyle="bold"/>
 
-        <EditText
-            android:id="@+id/editTextPassword"
+        <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:minHeight="48dp"
-            android:hint="Password"
-            android:inputType="textPassword"
-            android:singleLine="true" />
+            android:layout_marginTop="10dp"
+            android:gravity="center"
+            android:text="Your favourite café moments start here."
+            android:textColor="#75665E"
+            android:textSize="15sp"/>
 
-        <Button
-            android:id="@+id/buttonLogin"
+        <!-- Login form -->
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
-            android:text="Login" />
+            android:layout_marginTop="40dp"
+            android:background="@drawable/bg_menu_card"
+            android:orientation="vertical"
+            android:padding="20dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="EMAIL ADDRESS"
+                android:textColor="#35241C"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:letterSpacing="0.08"/>
+
+            <EditText
+                android:id="@+id/editTextEmail"
+                android:layout_width="match_parent"
+                android:layout_height="54dp"
+                android:layout_marginTop="10dp"
+                android:backgroundTint="#A57550"
+                android:hint="you@example.com"
+                android:inputType="textEmailAddress"
+                android:singleLine="true"
+                android:textColor="#35241C"
+                android:textColorHint="#94867D"
+                android:textSize="15sp"
+                android:importantForAutofill="yes"
+                android:autofillHints="emailAddress"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:text="PASSWORD"
+                android:textColor="#35241C"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:letterSpacing="0.08"/>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <EditText
+                    android:id="@+id/editTextPassword"
+                    android:layout_width="0dp"
+                    android:layout_height="54dp"
+                    android:layout_weight="1"
+                    android:layout_marginTop="10dp"
+                    android:backgroundTint="#A57550"
+                    android:hint="Enter your password"
+                    android:inputType="textPassword"
+                    android:singleLine="true"
+                    android:textColor="#35241C"
+                    android:textColorHint="#94867D"
+                    android:textSize="15sp"
+                    android:importantForAutofill="yes"
+                    android:autofillHints="password"/>
+
+                <TextView
+                    android:id="@+id/textTogglePassword"
+                    android:layout_width="wrap_content"
+                    android:layout_height="48dp"
+                    android:layout_marginStart="10dp"
+                    android:gravity="center"
+                    android:paddingStart="8dp"
+                    android:paddingEnd="8dp"
+                    android:text="Show"
+                    android:textColor="#A57550"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:contentDescription="Show or hide password"
+                    android:clickable="true"
+                    android:focusable="true"/>
+            </LinearLayout>
+
+            <Button
+                android:id="@+id/buttonLogin"
+                android:layout_width="match_parent"
+                android:layout_height="54dp"
+                android:layout_marginTop="28dp"
+                android:backgroundTint="#35241C"
+                android:text="Sign In"
+                android:textAllCaps="false"
+                android:textColor="#FFFFFF"
+                android:textSize="16sp"
+                android:textStyle="bold"/>
+        </LinearLayout>
+
+        <!-- Registration -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="26dp"
+            android:gravity="center"
+            android:text="New to Smart Café?"
+            android:textColor="#75665E"
+            android:textSize="14sp"/>
 
         <Button
             android:id="@+id/buttonRegister"
             android:layout_width="match_parent"
+            android:layout_height="52dp"
+            android:layout_marginTop="12dp"
+            android:backgroundTint="#E9DED3"
+            android:text="Create an Account"
+            android:textAllCaps="false"
+            android:textColor="#35241C"
+            android:textSize="15sp"/>
+
+        <TextView
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:text="Create Account" />
+            android:layout_marginTop="36dp"
+            android:gravity="center"
+            android:text="GOOD COFFEE. GOOD MOMENTS."
+            android:textColor="#A57550"
+            android:textSize="11sp"
+            android:textStyle="bold"
+            android:letterSpacing="0.12"/>
 
     </LinearLayout>
-
-</androidx.constraintlayout.widget.ConstraintLayout>
+</ScrollView>

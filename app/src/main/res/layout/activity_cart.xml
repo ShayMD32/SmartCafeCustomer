@@ -1,64 +1,138 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<ScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="24dp">
+    android:background="#F8F5F0"
+    android:fillViewport="true">
 
-    <TextView
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Your Basket"
-        android:textSize="28sp"
-        android:textStyle="bold"
-        android:layout_marginBottom="16dp" />
+        android:orientation="vertical"
+        android:padding="20dp">
 
-    <ScrollView
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1">
+        <!-- Header -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:text="SMART CAFÉ"
+            android:textColor="#A57550"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            android:letterSpacing="0.15"/>
 
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:text="Your basket"
+            android:textColor="#35241C"
+            android:textSize="30sp"
+            android:textStyle="bold"/>
+
+        <TextView
+            android:id="@+id/subtitleText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:text="Review your favourites before ordering."
+            android:textColor="#75665E"
+            android:textSize="14sp"/>
+
+        <!-- Basket products -->
         <LinearLayout
             android:id="@+id/cartContainer"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical" />
+            android:layout_marginTop="24dp"
+            android:orientation="vertical"/>
 
-    </ScrollView>
+        <!-- Order summary -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="22dp"
+            android:background="@drawable/bg_menu_card"
+            android:orientation="vertical"
+            android:padding="18dp">
 
-    <TextView
-        android:id="@+id/textCartTotal"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Total: £0.00"
-        android:textSize="22sp"
-        android:textStyle="bold"
-        android:paddingTop="16dp"
-        android:paddingBottom="16dp" />
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Order summary"
+                android:textColor="#35241C"
+                android:textSize="20sp"
+                android:textStyle="bold"/>
 
-    <Button
-        android:id="@+id/buttonPlaceOrder"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:minHeight="48dp"
-        android:text="Place Order" />
+            <TextView
+                android:id="@+id/itemCountText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="0 items"
+                android:textColor="#75665E"
+                android:textSize="14sp"/>
 
-    <Button
-        android:id="@+id/buttonBackToMenu"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:minHeight="48dp"
-        android:text="Back to Menu" />
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="16dp"
+                android:background="#E9DED3"/>
 
-    <Button
-        android:id="@+id/buttonBackToHome"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:minHeight="48dp"
-        android:layout_marginTop="8dp"
-        android:text="Back to Home" />
+            <TextView
+                android:id="@+id/totalText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Total: £0.00"
+                android:textColor="#35241C"
+                android:textSize="23sp"
+                android:textStyle="bold"/>
 
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:text="Demo order only — no payment is taken."
+                android:textColor="#75665E"
+                android:textSize="12sp"/>
+        </LinearLayout>
 
-</LinearLayout>
+        <!-- Checkout -->
+        <Button
+            android:id="@+id/buttonPlaceOrder"
+            android:layout_width="match_parent"
+            android:layout_height="54dp"
+            android:layout_marginTop="20dp"
+            android:backgroundTint="#35241C"
+            android:text="Place Order"
+            android:textAllCaps="false"
+            android:textColor="#FFFFFF"
+            android:textSize="16sp"
+            android:textStyle="bold"/>
+
+        <Button
+            android:id="@+id/buttonContinueShopping"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_marginTop="10dp"
+            android:backgroundTint="#E9DED3"
+            android:text="Continue Shopping"
+            android:textAllCaps="false"
+            android:textColor="#35241C"/>
+
+        <Button
+            android:id="@+id/buttonBackToHome"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_marginTop="8dp"
+            android:backgroundTint="#EFE8E0"
+            android:text="Back to Home"
+            android:textAllCaps="false"
+            android:textColor="#35241C"/>
+
+    </LinearLayout>
+</ScrollView>

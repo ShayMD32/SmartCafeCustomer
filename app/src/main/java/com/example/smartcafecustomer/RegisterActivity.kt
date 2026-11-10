@@ -1,6 +1,6 @@
-
 package com.example.smartcafecustomer
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Patterns
 import android.widget.Button
@@ -8,21 +8,39 @@ import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.UserProfileChangeRequest
 
 class RegisterActivity : AppCompatActivity() {
+
+    private lateinit var auth: FirebaseAuth
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_register)
-        val auth = FirebaseAuth.getInstance()
 
-        val fullNameInput = findViewById<EditText>(R.id.editTextFullName)
-        val emailInput = findViewById<EditText>(R.id.editTextRegisterEmail)
-        val passwordInput = findViewById<EditText>(R.id.editTextRegisterPassword)
-        val confirmPasswordInput = findViewById<EditText>(R.id.editTextConfirmPassword)
+        auth = FirebaseAuth.getInstance()
 
-        val registerButton = findViewById<Button>(R.id.buttonCreateAccount)
-        val backButton = findViewById<Button>(R.id.buttonBackToLogin)
+        val fullNameInput =
+            findViewById<EditText>(R.id.editTextFullName)
+
+        val emailInput =
+            findViewById<EditText>(R.id.editTextRegisterEmail)
+
+        val passwordInput =
+            findViewById<EditText>(R.id.editTextRegisterPassword)
+
+        val confirmPasswordInput =
+            findViewById<EditText>(R.id.editTextConfirmPassword)
+
+        val registerButton =
+            findViewById<Button>(R.id.buttonCreateAccount)
+
+        val backButton =
+            findViewById<Button>(R.id.buttonBackToLogin)
+
+        backButton.setOnClickListener {
+            finish()
+        }
 
         registerButton.setOnClickListener {
 
@@ -32,59 +50,116 @@ class RegisterActivity : AppCompatActivity() {
             val confirmPassword = confirmPasswordInput.text.toString()
 
             when {
-                fullName.isEmpty() -> {
+                fullName.isBlank() -> {
                     fullNameInput.error = "Please enter your full name"
+                    fullNameInput.requestFocus()
                 }
 
-                email.isEmpty() -> {
+                email.isBlank() -> {
                     emailInput.error = "Please enter your email"
+                    emailInput.requestFocus()
                 }
 
                 !Patterns.EMAIL_ADDRESS.matcher(email).matches() -> {
-                    emailInput.error = "Please enter a valid email"
+                    emailInput.error = "Enter a valid email address"
+                    emailInput.requestFocus()
                 }
 
                 password.length < 8 -> {
-                    passwordInput.error = "Password must be at least 8 characters"
+                    passwordInput.error =
+                        "Password must contain at least 8 characters"
+                    passwordInput.requestFocus()
+                }
+
+                confirmPassword.isBlank() -> {
+                    confirmPasswordInput.error =
+                        "Please confirm your password"
+                    confirmPasswordInput.requestFocus()
                 }
 
                 password != confirmPassword -> {
-                    confirmPasswordInput.error = "Passwords do not match"
+                    confirmPasswordInput.error =
+                        "Passwords do not match"
+                    confirmPasswordInput.requestFocus()
                 }
-
 
                 else -> {
                     registerButton.isEnabled = false
+                    registerButton.text = "Creating account..."
 
                     auth.createUserWithEmailAndPassword(email, password)
                         .addOnCompleteListener(this) { task ->
 
-                            registerButton.isEnabled = true
-
                             if (task.isSuccessful) {
-                                Toast.makeText(
-                                    this,
-                                    "Account created successfully!",
-                                    Toast.LENGTH_LONG
-                                ).show()
+                                val user = auth.currentUser
 
-                                finish()
+                                if (user == null) {
+                                    resetRegisterButton(registerButton)
+                                    showMessage(
+                                        "Account created, but the session could not be loaded."
+                                    )
+                                    return@addOnCompleteListener
+                                }
+
+                                val profileUpdates =
+                                    UserProfileChangeRequest.Builder()
+                                        .setDisplayName(fullName)
+                                        .build()
+
+                                user.updateProfile(profileUpdates)
+                                    .addOnCompleteListener(this) { profileTask ->
+                                        resetRegisterButton(registerButton)
+
+                                        if (!profileTask.isSuccessful) {
+                                            showMessage(
+                                                "Account created, but your name could not be saved."
+                                            )
+                                        } else {
+                                            showMessage(
+                                                "Account created successfully!"
+                                            )
+                                        }
+
+                                        openDashboard()
+                                    }
+
                             } else {
-                                Toast.makeText(
-                                    this,
-                                    task.exception?.localizedMessage
-                                        ?: "Registration failed. Please try again.",
-                                    Toast.LENGTH_LONG
-                                ).show()
+                                resetRegisterButton(registerButton)
+
+                                showMessage(
+                                    "Registration failed. Please check your details and try again."
+                                )
                             }
                         }
                 }
             }
         }
+    }
 
-        backButton.setOnClickListener {
-            finish()
-        }
+    private fun resetRegisterButton(button: Button) {
+        button.isEnabled = true
+        button.text = "Create Account"
+    }
 
+    private fun showMessage(message: String) {
+        Toast.makeText(
+            this,
+            message,
+            Toast.LENGTH_LONG
+        ).show()
+    }
+
+    private fun openDashboard() {
+        val intent = Intent(
+            this,
+            DashboardActivity::class.java
+        )
+
+        intent.flags =
+            Intent.FLAG_ACTIVITY_NEW_TASK or
+                    Intent.FLAG_ACTIVITY_CLEAR_TASK
+
+        startActivity(intent)
+        finish()
     }
 }

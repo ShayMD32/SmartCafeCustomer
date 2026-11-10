@@ -1,35 +1,68 @@
-
 package com.example.smartcafecustomer
 
 import android.content.Intent
 import android.os.Bundle
+import android.text.InputType
 import android.util.Patterns
 import android.widget.Button
 import android.widget.EditText
+import android.widget.TextView
 import android.widget.Toast
-import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
 import com.google.firebase.auth.FirebaseAuth
 
 class MainActivity : AppCompatActivity() {
 
+    private lateinit var auth: FirebaseAuth
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
         setContentView(R.layout.activity_main)
 
-        val auth = FirebaseAuth.getInstance()
+        auth = FirebaseAuth.getInstance()
 
-        val emailInput = findViewById<EditText>(R.id.editTextEmail)
-        val passwordInput = findViewById<EditText>(R.id.editTextPassword)
-        val loginButton = findViewById<Button>(R.id.buttonLogin)
-        val registerButton = findViewById<Button>(R.id.buttonRegister)
+        val emailInput =
+            findViewById<EditText>(R.id.editTextEmail)
+
+        val passwordInput =
+            findViewById<EditText>(R.id.editTextPassword)
+
+        val loginButton =
+            findViewById<Button>(R.id.buttonLogin)
+
+        val registerButton =
+            findViewById<Button>(R.id.buttonRegister)
+
+        val togglePassword =
+            findViewById<TextView>(R.id.textTogglePassword)
+
+        var passwordVisible = false
+
+        // Show or hide password
+        togglePassword.setOnClickListener {
+            passwordVisible = !passwordVisible
+
+            passwordInput.inputType =
+                if (passwordVisible) {
+                    InputType.TYPE_CLASS_TEXT or
+                            InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
+                } else {
+                    InputType.TYPE_CLASS_TEXT or
+                            InputType.TYPE_TEXT_VARIATION_PASSWORD
+                }
+
+            togglePassword.text =
+                if (passwordVisible) "Hide" else "Show"
+
+            passwordInput.setSelection(
+                passwordInput.text.length
+            )
+        }
 
         registerButton.setOnClickListener {
-            val intent = Intent(this, RegisterActivity::class.java)
-            startActivity(intent)
+            startActivity(
+                Intent(this, RegisterActivity::class.java)
+            )
         }
 
         loginButton.setOnClickListener {
@@ -40,71 +73,58 @@ class MainActivity : AppCompatActivity() {
             when {
                 email.isEmpty() -> {
                     emailInput.error = "Enter your email"
+                    emailInput.requestFocus()
                 }
 
                 !Patterns.EMAIL_ADDRESS.matcher(email).matches() -> {
                     emailInput.error = "Enter a valid email address"
+                    emailInput.requestFocus()
                 }
 
                 password.isEmpty() -> {
                     passwordInput.error = "Enter your password"
+                    passwordInput.requestFocus()
                 }
 
                 else -> {
                     loginButton.isEnabled = false
+                    loginButton.text = "Signing in..."
 
                     auth.signInWithEmailAndPassword(email, password)
                         .addOnCompleteListener(this) { task ->
 
                             loginButton.isEnabled = true
-
+                            loginButton.text = "Sign In"
 
                             if (task.isSuccessful) {
                                 Toast.makeText(
                                     this,
-                                    "Login successful!",
+                                    "Welcome back!",
                                     Toast.LENGTH_SHORT
                                 ).show()
 
-                                val intent = Intent(this, DashboardActivity::class.java)
+                                val intent = Intent(
+                                    this,
+                                    DashboardActivity::class.java
+                                )
+
+                                intent.flags =
+                                    Intent.FLAG_ACTIVITY_NEW_TASK or
+                                            Intent.FLAG_ACTIVITY_CLEAR_TASK
+
                                 startActivity(intent)
                                 finish()
-                            }
 
-
-
-                            else {
-                                val errorMessage = task.exception?.localizedMessage
-                                    ?: "Unknown login error"
-
+                            } else {
                                 Toast.makeText(
                                     this,
-                                    errorMessage,
+                                    "Unable to sign in. Check your details and try again.",
                                     Toast.LENGTH_LONG
                                 ).show()
                             }
-
                         }
                 }
             }
-        }
-
-        ViewCompat.setOnApplyWindowInsetsListener(
-            findViewById(R.id.main)
-        ) { v, insets ->
-
-            val systemBars = insets.getInsets(
-                WindowInsetsCompat.Type.systemBars()
-            )
-
-            v.setPadding(
-                systemBars.left,
-                systemBars.top,
-                systemBars.right,
-                systemBars.bottom
-            )
-
-            insets
         }
     }
 }

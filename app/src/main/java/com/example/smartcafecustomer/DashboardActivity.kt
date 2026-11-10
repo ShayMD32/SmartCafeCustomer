@@ -9,57 +9,68 @@ import com.google.firebase.auth.FirebaseAuth
 
 class DashboardActivity : AppCompatActivity() {
 
+    private lateinit var auth: FirebaseAuth
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_dashboard)
 
+        auth = FirebaseAuth.getInstance()
 
-        val feedbackButton =
-            findViewById<Button>(R.id.buttonFeedback)
-
-        feedbackButton.setOnClickListener {
-            val intent = Intent(this, FeedbackActivity::class.java)
-            startActivity(intent)
-        }
-
-
-        val auth = FirebaseAuth.getInstance()
-
+        // Ensure the customer is signed in
         if (auth.currentUser == null) {
-            startActivity(Intent(this, MainActivity::class.java))
-            finish()
+            returnToLogin()
             return
         }
 
-        val logoutButton = findViewById<Button>(R.id.buttonLogout)
-        val browseMenuButton = findViewById<Button>(R.id.buttonBrowseMenu)
-        val orderHistoryButton = findViewById<Button>(R.id.buttonOrderHistory)
+        // Browse café products
+        findViewById<Button>(R.id.buttonBrowseMenu)
+            .setOnClickListener {
+                startActivity(
+                    Intent(this, MenuActivity::class.java)
+                )
+            }
 
-        logoutButton.setOnClickListener {
-            auth.signOut()
+        // View previous orders
+        findViewById<Button>(R.id.buttonOrderHistory)
+            .setOnClickListener {
+                startActivity(
+                    Intent(this, OrderHistoryActivity::class.java)
+                )
+            }
 
-            Toast.makeText(
-                this,
-                "Logged out successfully",
-                Toast.LENGTH_SHORT
-            ).show()
+        // Submit customer feedback
+        findViewById<Button>(R.id.buttonFeedback)
+            .setOnClickListener {
+                startActivity(
+                    Intent(this, FeedbackActivity::class.java)
+                )
+            }
 
-            val intent = Intent(this, MainActivity::class.java)
-            startActivity(intent)
-            finish()
-        }
+        // Sign out securely
+        findViewById<Button>(R.id.buttonLogout)
+            .setOnClickListener {
+                auth.signOut()
 
+                Toast.makeText(
+                    this,
+                    "Logged out successfully",
+                    Toast.LENGTH_SHORT
+                ).show()
 
-        browseMenuButton.setOnClickListener {
-            val intent = Intent(this, MenuActivity::class.java)
-            startActivity(intent)
-        }
+                returnToLogin()
+            }
+    }
 
+    private fun returnToLogin() {
+        val intent = Intent(this, MainActivity::class.java)
 
-        orderHistoryButton.setOnClickListener {
-            val intent = Intent(this, OrderHistoryActivity::class.java)
-            startActivity(intent)
-        }
+        // Clear previous screens from navigation history
+        intent.flags =
+            Intent.FLAG_ACTIVITY_NEW_TASK or
+                    Intent.FLAG_ACTIVITY_CLEAR_TASK
 
+        startActivity(intent)
+        finish()
     }
 }
