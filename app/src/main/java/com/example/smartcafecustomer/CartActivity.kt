@@ -1,6 +1,9 @@
 package com.example.smartcafecustomer
 
+import android.content.Context
 import android.content.Intent
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.widget.Button
@@ -31,13 +34,12 @@ class CartActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_cart)
 
-
+        // Connect Kotlin to the XML layout
         cartContainer = findViewById(R.id.cartContainer)
         itemCountText = findViewById(R.id.itemCountText)
         totalText = findViewById(R.id.totalText)
         subtitleText = findViewById(R.id.subtitleText)
         placeOrderButton = findViewById(R.id.buttonPlaceOrder)
-
 
         // Return to the menu
         findViewById<Button>(R.id.buttonContinueShopping)
@@ -62,12 +64,13 @@ class CartActivity : AppCompatActivity() {
                 finish()
             }
 
-        // Submit the order
+        // Submit the customer's order
         placeOrderButton.setOnClickListener {
             placeOrder()
         }
 
         refreshCart()
+
     }
 
     override fun onResume() {
@@ -78,7 +81,28 @@ class CartActivity : AppCompatActivity() {
         }
     }
 
-    // Display currency in pounds
+    // Check whether Android reports internet connectivity
+    private fun isInternetAvailable(): Boolean {
+
+        val connectivityManager = getSystemService(
+            Context.CONNECTIVITY_SERVICE
+        ) as ConnectivityManager
+
+        val network = connectivityManager.activeNetwork
+            ?: return false
+
+        val capabilities =
+            connectivityManager.getNetworkCapabilities(network)
+                ?: return false
+
+        return capabilities.hasCapability(
+            NetworkCapabilities.NET_CAPABILITY_INTERNET
+        ) && capabilities.hasCapability(
+            NetworkCapabilities.NET_CAPABILITY_VALIDATED
+        )
+    }
+
+    // Format prices in pounds sterling
     private fun formatPrice(pence: Int): String {
         return String.format(
             Locale.UK,
@@ -87,7 +111,7 @@ class CartActivity : AppCompatActivity() {
         )
     }
 
-    // Match products with their photographs
+    // Match each product to its photograph
     private fun getProductImage(productName: String): Int {
         return when (productName) {
             "Cappuccino" -> R.drawable.cappuccino
@@ -102,7 +126,7 @@ class CartActivity : AppCompatActivity() {
         }
     }
 
-    // Refresh all basket information
+    // Refresh basket products, quantities and totals
     private fun refreshCart() {
 
         cartContainer.removeAllViews()
@@ -131,15 +155,25 @@ class CartActivity : AppCompatActivity() {
                 "Review your favourites before ordering."
             }
 
+        // Prevent checkout while basket is empty
+        // or an order is being submitted
         placeOrderButton.isEnabled =
             selectedItems.isNotEmpty() && !orderInProgress
+
+        placeOrderButton.alpha =
+            if (placeOrderButton.isEnabled) 1.0f else 0.4f
+
 
         // Display empty basket message
         if (selectedItems.isEmpty()) {
 
             val emptyText = TextView(this).apply {
-                text = "Your basket is empty.\nExplore the menu to add something delicious."
+                text =
+                    "Your basket is empty.\n" +
+                            "Explore the menu to add something delicious."
+
                 textSize = 16f
+
                 setTextColor(
                     android.graphics.Color.parseColor("#75665E")
                 )
@@ -148,7 +182,12 @@ class CartActivity : AppCompatActivity() {
                         20 * resources.displayMetrics.density
                         ).toInt()
 
-                setPadding(padding, padding, padding, padding)
+                setPadding(
+                    padding,
+                    padding,
+                    padding,
+                    padding
+                )
             }
 
             cartContainer.addView(emptyText)
@@ -234,7 +273,7 @@ class CartActivity : AppCompatActivity() {
                 refreshCart()
             }
 
-            // Remove all quantities of this product
+            // Remove all quantities of a product
             removeButton.setOnClickListener {
                 ShoppingCart.removeAllOfItem(item)
                 refreshCart()
@@ -244,13 +283,15 @@ class CartActivity : AppCompatActivity() {
         }
     }
 
-    // Save customer's order to Firebase
+    // Save the customer's order to Firebase
     private fun placeOrder() {
 
+        // Prevent repeated submissions
         if (orderInProgress) return
 
         val user = auth.currentUser
 
+        // Require an authenticated customer
         if (user == null) {
             Toast.makeText(
                 this,
@@ -262,6 +303,7 @@ class CartActivity : AppCompatActivity() {
 
         val selectedItems = ShoppingCart.getItems()
 
+        // Prevent empty orders
         if (selectedItems.isEmpty()) {
             Toast.makeText(
                 this,
@@ -271,9 +313,20 @@ class CartActivity : AppCompatActivity() {
             return
         }
 
+        // Reject a new checkout if already offline
+        if (!isInternetAvailable()) {
+            Toast.makeText(
+                this,
+                "You're offline. Please reconnect to the " +
+                        "internet before placing your order.",
+                Toast.LENGTH_LONG
+            ).show()
+            return
+        }
+
         val totalPence = ShoppingCart.getTotalPence()
 
-        // Store product details and quantities
+        // Convert basket products into Firestore order items
         val orderItems = selectedItems.map { (item, quantity) ->
             hashMapOf(
                 "productId" to item.id,
@@ -283,7 +336,7 @@ class CartActivity : AppCompatActivity() {
             )
         }
 
-        // Create order record
+        // Create the order record
         val order = hashMapOf(
             "userId" to user.uid,
             "items" to orderItems,
@@ -293,10 +346,11 @@ class CartActivity : AppCompatActivity() {
         )
 
         orderInProgress = true
+
         placeOrderButton.isEnabled = false
         placeOrderButton.text = "Placing order..."
 
-        // Save to the authenticated customer's orders
+        // Save to the signed-in customer's Firestore collection
         database.collection("users")
             .document(user.uid)
             .collection("orders")
@@ -305,6 +359,7 @@ class CartActivity : AppCompatActivity() {
 
                 orderInProgress = false
 
+                // Only clear basket after successful submission
                 ShoppingCart.clearCart()
 
                 placeOrderButton.text = "Place Order"
@@ -321,6 +376,7 @@ class CartActivity : AppCompatActivity() {
 
                 orderInProgress = false
 
+                // Preserve basket on failure
                 placeOrderButton.text = "Place Order"
 
                 refreshCart()
