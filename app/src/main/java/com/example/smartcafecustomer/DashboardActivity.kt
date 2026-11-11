@@ -17,6 +17,14 @@ class DashboardActivity : AppCompatActivity() {
 
         auth = FirebaseAuth.getInstance()
 
+        findViewById<Button>(R.id.buttonTerms).setOnClickListener {
+            openPolicy(PolicyActivity.TERMS)
+        }
+        findViewById<Button>(R.id.buttonPrivacy).setOnClickListener {
+            openPolicy(PolicyActivity.PRIVACY)
+        }
+
+
         // Ensure the customer is signed in
         if (auth.currentUser == null) {
             returnToLogin()
@@ -72,5 +80,11 @@ class DashboardActivity : AppCompatActivity() {
 
         startActivity(intent)
         finish()
+    }
+
+    private fun openPolicy(type: String) {
+        startActivity(Intent(this, PolicyActivity::class.java).apply {
+            putExtra(PolicyActivity.EXTRA_POLICY, type)
+        })
     }
 }

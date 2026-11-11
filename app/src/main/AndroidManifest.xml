@@ -45,6 +45,10 @@
             android:name=".FeedbackActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
+        <activity
+            android:name=".PolicyActivity"
+            android:exported="false" />
+
     </application>
 
 </manifest>

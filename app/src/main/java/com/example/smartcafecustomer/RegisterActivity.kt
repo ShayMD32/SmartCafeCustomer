@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Patterns
 import android.widget.Button
+import android.widget.CheckBox
 import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -19,6 +20,14 @@ class RegisterActivity : AppCompatActivity() {
         setContentView(R.layout.activity_register)
 
         auth = FirebaseAuth.getInstance()
+
+        findViewById<Button>(R.id.buttonTerms).setOnClickListener {
+            openPolicy(PolicyActivity.TERMS)
+        }
+        findViewById<Button>(R.id.buttonPrivacy).setOnClickListener {
+            openPolicy(PolicyActivity.PRIVACY)
+        }
+
 
         val fullNameInput =
             findViewById<EditText>(R.id.editTextFullName)
@@ -37,6 +46,8 @@ class RegisterActivity : AppCompatActivity() {
 
         val backButton =
             findViewById<Button>(R.id.buttonBackToLogin)
+
+        val agreeTerms = findViewById<CheckBox>(R.id.checkAgreeTerms)
 
         backButton.setOnClickListener {
             finish()
@@ -77,6 +88,11 @@ class RegisterActivity : AppCompatActivity() {
                     confirmPasswordInput.requestFocus()
                 }
 
+                !agreeTerms.isChecked -> {
+                    Toast.makeText(this, "Please read and agree to the service terms before registering.", Toast.LENGTH_LONG).show()
+                    agreeTerms.requestFocus()
+                }
+
                 password != confirmPassword -> {
                     confirmPasswordInput.error =
                         "Passwords do not match"
@@ -100,6 +116,13 @@ class RegisterActivity : AppCompatActivity() {
                                     )
                                     return@addOnCompleteListener
                                 }
+
+                                // Device-local prototype evidence only: not a server-side consent ledger.
+                                getSharedPreferences("smart_cafe_terms", MODE_PRIVATE)
+                                    .edit()
+                                    .putString("terms_version_${user.uid}", PolicyActivity.TERMS_VERSION)
+                                    .putLong("accepted_at_${user.uid}", System.currentTimeMillis())
+                                    .apply()
 
                                 val profileUpdates =
                                     UserProfileChangeRequest.Builder()
@@ -161,5 +184,11 @@ class RegisterActivity : AppCompatActivity() {
 
         startActivity(intent)
         finish()
+    }
+
+    private fun openPolicy(type: String) {
+        startActivity(Intent(this, PolicyActivity::class.java).apply {
+            putExtra(PolicyActivity.EXTRA_POLICY, type)
+        })
     }
 }

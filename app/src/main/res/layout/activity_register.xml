@@ -145,6 +145,24 @@
                 android:textColor="#35241C"
                 android:textColorHint="#94867D"/>
 
+            <CheckBox
+                android:id="@+id/checkAgreeTerms"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="18dp"
+                android:buttonTint="#35241C"
+                android:text="I agree to the Smart Café service terms (2026-11-11-v1)"
+                android:textColor="#35241C"
+                android:textSize="14sp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:text="Privacy information is provided separately; agreeing to terms is not marketing consent."
+                android:textColor="#75665E"
+                android:textSize="12sp" />
+
             <Button
                 android:id="@+id/buttonCreateAccount"
                 android:layout_width="match_parent"
@@ -191,6 +209,26 @@
             android:textSize="11sp"
             android:textStyle="bold"
             android:letterSpacing="0.12"/>
+
+    
+        <Button
+            android:id="@+id/buttonTerms"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginTop="12dp"
+            android:backgroundTint="#E9DED3"
+            android:text="Terms &amp; Conditions"
+            android:textAllCaps="false"
+            android:textColor="#35241C" />
+        <Button
+            android:id="@+id/buttonPrivacy"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginTop="4dp"
+            android:backgroundTint="#E9DED3"
+            android:text="Privacy Notice"
+            android:textAllCaps="false"
+            android:textColor="#35241C" />
 
     </LinearLayout>
 </ScrollView>

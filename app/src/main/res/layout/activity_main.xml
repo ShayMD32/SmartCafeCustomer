@@ -173,5 +173,25 @@
             android:textStyle="bold"
             android:letterSpacing="0.12"/>
 
+    
+        <Button
+            android:id="@+id/buttonTerms"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginTop="12dp"
+            android:backgroundTint="#E9DED3"
+            android:text="Terms &amp; Conditions"
+            android:textAllCaps="false"
+            android:textColor="#35241C" />
+        <Button
+            android:id="@+id/buttonPrivacy"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginTop="4dp"
+            android:backgroundTint="#E9DED3"
+            android:text="Privacy Notice"
+            android:textAllCaps="false"
+            android:textColor="#35241C" />
+
     </LinearLayout>
 </ScrollView>
