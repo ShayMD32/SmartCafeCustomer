@@ -1,71 +1,198 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<ScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="24dp">
+    android:background="#F8F5F0"
+    android:fillViewport="true">
 
-    <TextView
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Customer Feedback"
-        android:textSize="28sp"
-        android:textStyle="bold"
-        android:layout_marginBottom="16dp" />
+        android:orientation="vertical"
+        android:padding="20dp">
 
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="How was your Smart Café experience?"
-        android:textSize="16sp"
-        android:layout_marginBottom="12dp" />
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:text="SMART CAFÉ"
+            android:textColor="#A57550"
+            android:textSize="13sp"
+            android:textStyle="bold"
+            android:letterSpacing="0.15"/>
 
-    <RatingBar
-        android:id="@+id/ratingBarFeedback"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:numStars="5"
-        android:stepSize="1"
-        android:rating="0"
-        android:layout_marginBottom="16dp" />
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="14dp"
+            android:text="Your feedback matters."
+            android:textColor="#35241C"
+            android:textSize="29sp"
+            android:textStyle="bold"/>
 
-    <EditText
-        android:id="@+id/editFeedbackComment"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:minHeight="120dp"
-        android:gravity="top"
-        android:hint="Write your feedback here..."
-        android:inputType="textMultiLine"
-        android:layout_marginBottom="16dp" />
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="Tell us about your café experience."
+            android:textColor="#75665E"
+            android:textSize="15sp"/>
 
-    <Button
-        android:id="@+id/buttonSubmitFeedback"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:minHeight="48dp"
-        android:text="Submit Feedback" />
+        <!-- Feedback card -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="28dp"
+            android:background="@drawable/bg_menu_card"
+            android:orientation="vertical"
+            android:padding="18dp">
 
-    <Space
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1" />
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="How was your experience?"
+                android:textColor="#35241C"
+                android:textSize="19sp"
+                android:textStyle="bold"/>
 
-    <Button
-        android:id="@+id/buttonBackToMenu"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:minHeight="48dp"
-        android:text="Back to Menu" />
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:text="Choose a rating from 1 to 5 stars."
+                android:textColor="#75665E"
+                android:textSize="14sp"/>
 
-    <Button
-        android:id="@+id/buttonBackToHome"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:minHeight="48dp"
-        android:layout_marginTop="8dp"
-        android:text="Back to Home" />
+            <RatingBar
+                android:id="@+id/ratingBarFeedback"
+                style="?android:attr/ratingBarStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="20dp"
+                android:numStars="5"
+                android:rating="0"
+                android:stepSize="1"
+                android:progressTint="#B68A4D"
+                android:secondaryProgressTint="#D9C5AA"
+                android:progressBackgroundTint="#E6DED6"
+                android:contentDescription="Customer rating from one to five stars"/>
 
-</LinearLayout>
+            <TextView
+                android:id="@+id/textSelectedRating"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:gravity="center"
+                android:text="No rating selected"
+                android:textColor="#75665E"
+                android:textSize="13sp"
+                android:accessibilityLiveRegion="polite"/>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginTop="24dp"
+                android:layout_marginBottom="22dp"
+                android:background="#E9DED3"/>
+
+            <TextView
+                android:id="@+id/labelFeedbackComment"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Share your thoughts"
+                android:textColor="#35241C"
+                android:textSize="16sp"
+                android:textStyle="bold"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:text="What did you enjoy? What could we improve?"
+                android:textColor="#75665E"
+                android:textSize="13sp"/>
+
+            <EditText
+                android:id="@+id/editFeedbackComment"
+                android:layout_width="match_parent"
+                android:layout_height="140dp"
+                android:layout_marginTop="14dp"
+                android:background="@drawable/bg_menu_card"
+                android:gravity="top|start"
+                android:hint="Write your feedback here..."
+                android:inputType="textCapSentences|textMultiLine"
+                android:maxLength="1000"
+                android:padding="14dp"
+                android:textColor="#35241C"
+                android:textColorHint="#8A7E76"
+                android:textSize="14sp"
+                android:labelFor="@id/editFeedbackComment"/>
+
+            <TextView
+                android:id="@+id/textFeedbackCounter"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:gravity="end"
+                android:text="0 / 1000 characters"
+                android:textColor="#75665E"
+                android:textSize="12sp"/>
+
+            <Button
+                android:id="@+id/buttonSubmitFeedback"
+                android:layout_width="match_parent"
+                android:layout_height="54dp"
+                android:layout_marginTop="24dp"
+                android:backgroundTint="#35241C"
+                android:text="Submit Feedback"
+                android:textAllCaps="false"
+                android:textColor="#FFFFFF"
+                android:textSize="15sp"/>
+
+            <TextView
+                android:id="@+id/textFeedbackStatus"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:gravity="center"
+                android:textColor="#467451"
+                android:textSize="13sp"
+                android:visibility="gone"
+                android:accessibilityLiveRegion="polite"/>
+
+        </LinearLayout>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="18dp"
+            android:gravity="center"
+            android:text="Your feedback helps us improve Smart Café."
+            android:textColor="#75665E"
+            android:textSize="13sp"/>
+
+        <Button
+            android:id="@+id/buttonBackToMenu"
+            android:layout_width="match_parent"
+            android:layout_height="52dp"
+            android:layout_marginTop="28dp"
+            android:backgroundTint="#A57550"
+            android:text="Explore Menu"
+            android:textAllCaps="false"
+            android:textColor="#FFFFFF"/>
+
+        <Button
+            android:id="@+id/buttonBackToHome"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_marginTop="8dp"
+            android:backgroundTint="#E9DED3"
+            android:text="Back to Home"
+            android:textAllCaps="false"
+            android:textColor="#35241C"/>
+
+    </LinearLayout>
+</ScrollView>
