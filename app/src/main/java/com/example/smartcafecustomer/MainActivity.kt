@@ -21,6 +21,24 @@ class MainActivity : AppCompatActivity() {
 
         auth = FirebaseAuth.getInstance()
 
+        // Check whether the customer is already signed in
+        if (auth.currentUser != null) {
+
+            val intent = Intent(
+                this,
+                DashboardActivity::class.java
+            )
+
+            intent.flags =
+                Intent.FLAG_ACTIVITY_NEW_TASK or
+                        Intent.FLAG_ACTIVITY_CLEAR_TASK
+
+            startActivity(intent)
+            finish()
+            return
+        }
+
+
         findViewById<Button>(R.id.buttonTerms).setOnClickListener {
             openPolicy(PolicyActivity.TERMS)
         }

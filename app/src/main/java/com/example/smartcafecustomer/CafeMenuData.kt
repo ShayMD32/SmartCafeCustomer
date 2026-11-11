@@ -10,6 +10,6 @@ object CafeMenuData {
         CafeItem("D005", "Iced Matcha", "Cold Drinks", 425),
         CafeItem("F001", "Chicken Panini", "Food", 550),
         CafeItem("F002", "Cheese Toastie", "Food", 450),
-        CafeItem("F003", "Blueberry Muffin", "Food", 295)
+        CafeItem("F003", "Blueberry Muffin", "Food", 295, false)
     )
 }

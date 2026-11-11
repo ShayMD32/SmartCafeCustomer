@@ -206,9 +206,35 @@ class MenuActivity : AppCompatActivity() {
             name.text = item.name
             category.text = item.category.uppercase(Locale.UK)
             description.text = getProductDescription(item.name)
+
             price.text = formatPrice(item.pricePence)
 
+// Show availability and control whether the product can be added
+            if (item.isAvailable) {
+
+                addButton.text = "Add to Basket"
+                addButton.isEnabled = true
+                addButton.alpha = 1.0f
+
+            } else {
+
+                addButton.text = "Sold Out"
+                addButton.isEnabled = false
+                addButton.alpha = 0.4f
+            }
+
+// Only available products can be added
             addButton.setOnClickListener {
+
+                if (!item.isAvailable) {
+                    Toast.makeText(
+                        this,
+                        "${item.name} is currently sold out.",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    return@setOnClickListener
+                }
+
                 ShoppingCart.addItem(item)
 
                 val quantity = ShoppingCart.getQuantity(item)
@@ -221,6 +247,7 @@ class MenuActivity : AppCompatActivity() {
                     Toast.LENGTH_SHORT
                 ).show()
             }
+
 
             menuContainer.addView(productCard)
         }

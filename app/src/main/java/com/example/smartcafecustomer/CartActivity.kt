@@ -324,6 +324,25 @@ class CartActivity : AppCompatActivity() {
             return
         }
 
+        val unavailableItems = selectedItems.filter { (item, _) ->
+            !item.isAvailable
+        }
+
+        if (unavailableItems.isNotEmpty()) {
+            val names = unavailableItems.joinToString(", ") { (item, _) ->
+                item.name
+            }
+
+            Toast.makeText(
+                this,
+                "$names is currently sold out. Please remove it from your basket.",
+                Toast.LENGTH_LONG
+            ).show()
+
+            return
+        }
+
+
         val totalPence = ShoppingCart.getTotalPence()
 
         // Convert basket products into Firestore order items

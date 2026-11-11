@@ -1,13 +1,21 @@
 package com.example.smartcafecustomer
 
+import android.Manifest
+import android.app.Notification
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.app.PendingIntent
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.graphics.Color
+import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.DocumentSnapshot
@@ -26,6 +34,22 @@ class OrderHistoryActivity : AppCompatActivity() {
     private lateinit var ordersContainer: LinearLayout
     private lateinit var statusText: TextView
 
+    // Remember previously observed order statuses
+    private val knownStatuses = mutableMapOf<String, String>()
+    private var firstSnapshotReceived = false
+
+    companion object {
+        private const val CHANNEL_ID = "smart_cafe_orders"
+    }
+
+    private val notificationPermissionLauncher =
+        registerForActivityResult(
+            ActivityResultContracts.RequestPermission()
+        ) { granted ->
+            // If denied, order history still works normally.
+            // The customer can enable notifications in Settings.
+        }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_order_history)
@@ -34,9 +58,10 @@ class OrderHistoryActivity : AppCompatActivity() {
         statusText = findViewById(R.id.textOrderStatus)
 
         setupNavigation()
+        createNotificationChannel()
+        requestNotificationPermission()
     }
 
-    // Set up navigation buttons
     private fun setupNavigation() {
 
         findViewById<Button>(R.id.buttonBackToMenu)
@@ -50,7 +75,6 @@ class OrderHistoryActivity : AppCompatActivity() {
             }
     }
 
-    // Navigate without creating unnecessary duplicate screens
     private fun navigateTo(destination: Class<*>) {
 
         val intent = Intent(this, destination)
@@ -69,11 +93,13 @@ class OrderHistoryActivity : AppCompatActivity() {
         loadOrders()
     }
 
-    // Listen for changes to the signed-in customer's orders
     private fun loadOrders() {
 
         orderListener?.remove()
         orderListener = null
+
+        knownStatuses.clear()
+        firstSnapshotReceived = false
 
         val user = auth.currentUser
 
@@ -93,7 +119,6 @@ class OrderHistoryActivity : AppCompatActivity() {
 
                 if (error != null) {
                     ordersContainer.removeAllViews()
-
                     showStatus(
                         "Unable to load orders. Check your connection."
                     )
@@ -105,6 +130,38 @@ class OrderHistoryActivity : AppCompatActivity() {
                     return@addSnapshotListener
                 }
 
+                // Detect changes without notifying on initial load
+                val currentStatuses = mutableMapOf<String, String>()
+
+                for (document in snapshot.documents) {
+
+                    val currentStatus =
+                        document.getString("status") ?: "Unknown"
+
+                    currentStatuses[document.id] = currentStatus
+
+                    if (firstSnapshotReceived) {
+
+                        val previousStatus =
+                            knownStatuses[document.id]
+
+                        // Notify only when an EXISTING order changes
+                        if (
+                            previousStatus != null &&
+                            previousStatus != currentStatus
+                        ) {
+                            showOrderNotification(
+                                document.id,
+                                currentStatus
+                            )
+                        }
+                    }
+                }
+
+                knownStatuses.clear()
+                knownStatuses.putAll(currentStatuses)
+                firstSnapshotReceived = true
+
                 if (snapshot.isEmpty) {
                     ordersContainer.removeAllViews()
 
@@ -114,7 +171,6 @@ class OrderHistoryActivity : AppCompatActivity() {
                     return@addSnapshotListener
                 }
 
-                // Display newest orders first
                 val orders = snapshot.documents.sortedByDescending {
                     it.getTimestamp("createdAt")?.seconds ?: 0L
                 }
@@ -123,13 +179,122 @@ class OrderHistoryActivity : AppCompatActivity() {
             }
     }
 
-    // Display a status, empty-state or error message
+    // Create the Android notification channel
+    private fun createNotificationChannel() {
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+
+            val channel = NotificationChannel(
+                CHANNEL_ID,
+                "Order Updates",
+                NotificationManager.IMPORTANCE_DEFAULT
+            ).apply {
+                description =
+                    "Notifications about Smart Café order status changes"
+            }
+
+            val manager = getSystemService(
+                NotificationManager::class.java
+            )
+
+            manager.createNotificationChannel(channel)
+        }
+    }
+
+    // Request notification permission on Android 13+
+    private fun requestNotificationPermission() {
+
+        if (Build.VERSION.SDK_INT >= 33) {
+
+            if (
+                checkSelfPermission(
+                    Manifest.permission.POST_NOTIFICATIONS
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
+                notificationPermissionLauncher.launch(
+                    Manifest.permission.POST_NOTIFICATIONS
+                )
+            }
+        }
+    }
+
+    // Display a notification for a changed order
+    private fun showOrderNotification(
+        orderId: String,
+        status: String
+    ) {
+
+        if (
+            Build.VERSION.SDK_INT >= 33 &&
+            checkSelfPermission(
+                Manifest.permission.POST_NOTIFICATIONS
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            return
+        }
+
+        val message = when (status.lowercase(Locale.UK)) {
+
+            "preparing" ->
+                "Your order is now being prepared."
+
+            "ready" ->
+                "Your order is ready for collection!"
+
+            "completed", "collected" ->
+                "Your order has been completed."
+
+            "cancelled" ->
+                "Your order has been cancelled."
+
+            else ->
+                "Your order status has changed to $status."
+        }
+
+        val intent = Intent(
+            this,
+            OrderHistoryActivity::class.java
+        ).apply {
+            flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or
+                    Intent.FLAG_ACTIVITY_SINGLE_TOP
+        }
+
+        val pendingIntent = PendingIntent.getActivity(
+            this,
+            orderId.hashCode(),
+            intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or
+                    PendingIntent.FLAG_IMMUTABLE
+        )
+
+        val builder =
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                Notification.Builder(this, CHANNEL_ID)
+            } else {
+                @Suppress("DEPRECATION")
+                Notification.Builder(this)
+            }
+
+        val notification = builder
+            .setSmallIcon(android.R.drawable.ic_dialog_info)
+            .setContentTitle("Smart Café Order Update")
+            .setContentText(message)
+            .setContentIntent(pendingIntent)
+            .setAutoCancel(true)
+            .build()
+
+        val manager = getSystemService(
+            NotificationManager::class.java
+        )
+
+        manager.notify(orderId.hashCode(), notification)
+    }
+
     private fun showStatus(message: String) {
         statusText.text = message
         statusText.visibility = View.VISIBLE
     }
 
-    // Refresh the visible list of orders
     private fun displayOrders(
         orders: List<DocumentSnapshot>
     ) {
@@ -143,7 +308,6 @@ class OrderHistoryActivity : AppCompatActivity() {
         }
     }
 
-    // Create a reusable order-history card
     private fun createOrderCard(
         document: DocumentSnapshot
     ): View {
@@ -175,23 +339,18 @@ class OrderHistoryActivity : AppCompatActivity() {
             R.id.textOrderTotal
         )
 
-        // Display a shortened order reference
         numberText.text =
             "Order #${document.id.take(8).uppercase(Locale.UK)}"
 
-        // Display the order date
         dateText.text = formatOrderDate(document)
 
-        // Display the order status
         val status = document.getString("status") ?: "Unknown"
 
         badgeText.text = status
         badgeText.setTextColor(getStatusColor(status))
 
-        // Display the ordered products and quantities
         productsText.text = formatOrderProducts(document)
 
-        // Display the order total
         val totalPence = document.getLong("totalPence") ?: 0L
 
         totalText.text = formatPrice(totalPence)
@@ -199,7 +358,6 @@ class OrderHistoryActivity : AppCompatActivity() {
         return orderCard
     }
 
-    // Format the order date for UK customers
     private fun formatOrderDate(
         document: DocumentSnapshot
     ): String {
@@ -213,7 +371,6 @@ class OrderHistoryActivity : AppCompatActivity() {
         ).format(timestamp.toDate())
     }
 
-    // Format products as quantity × product name
     private fun formatOrderProducts(
         document: DocumentSnapshot
     ): String {
@@ -247,7 +404,6 @@ class OrderHistoryActivity : AppCompatActivity() {
         }
     }
 
-    // Use consistent colours for order statuses
     private fun getStatusColor(status: String): Int {
 
         val colour = when (
@@ -264,7 +420,6 @@ class OrderHistoryActivity : AppCompatActivity() {
         return Color.parseColor(colour)
     }
 
-    // Convert an order total from pence to pounds
     private fun formatPrice(pence: Long): String {
 
         return String.format(
@@ -276,7 +431,6 @@ class OrderHistoryActivity : AppCompatActivity() {
 
     override fun onStop() {
 
-        // Prevent unnecessary Firestore listeners
         orderListener?.remove()
         orderListener = null
 
