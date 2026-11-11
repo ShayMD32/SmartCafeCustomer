@@ -370,7 +370,6 @@ class OrderHistoryActivity : AppCompatActivity() {
             Locale.UK
         ).format(timestamp.toDate())
     }
-
     private fun formatOrderProducts(
         document: DocumentSnapshot
     ): String {
